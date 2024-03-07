@@ -17,7 +17,7 @@ class UserAccount(AbstractUser):
     username = None
     email = models.EmailField(unique=True)
     USERNAME_FIELD = "email"
-    photo = models.FileField(upload_to='uploads/',blank=True,null=True)
+    photo = models.ImageField(upload_to='uploads/user/',blank=True,null=True)
     first_name = models.CharField(max_length=150, blank=True)
     last_name = models.CharField(max_length=150, blank=True)
     REQUIRED_FIELDS = []
