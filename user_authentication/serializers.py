@@ -10,10 +10,10 @@ class RegisterSerializer(serializers.Serializer):
     email = serializers.EmailField(max_length = 255,required = True,validators = [UniqueValidator(queryset=UserAccount.objects.all())])
     password = serializers.CharField(max_length = 128,write_only = True,required = True,validators=[password_validator])
     password2 = serializers.CharField(max_length = 128,write_only = True,required = True)
-    photo = serializers.FileField(required = False,validators=[phone_number_validator])
+    photo = serializers.ImageField(required = False)
     first_name = serializers.CharField(max_length=150)
     last_name = serializers.CharField(max_length=150)
-    phone_number = serializers.CharField(max_length=15)
+    phone_number = serializers.CharField(max_length=15,validators=[phone_number_validator])
     gender = serializers.ChoiceField(choices=Gender.choices)
     role = serializers.ChoiceField(choices=Role.choices)
 

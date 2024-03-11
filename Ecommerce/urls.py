@@ -8,4 +8,6 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/verify/',TokenVerifyView.as_view(),name='token_verify'),
     path('user-auth/',include("user_authentication.urls",namespace="user_auth")),   
+    path('product/',include("product.urls",namespace="product")),
+    path('cart/',include("cart.urls",namespace="cart")),
 ]
