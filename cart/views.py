@@ -7,17 +7,20 @@ from cart.serializers import CartItemSerializer,CartSerializer
 from rest_framework.response import Response
 from product.models import Product
 from rest_framework import status
-# Create your views here.
+from user_authentication.views import get_success,get_error
 
+# Create your views here.
 class CartView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
+    
     def get(self,request):
         user=request.user
         cart = Cart.objects.filter(user=user,status=False).first()
         qs = CartItems.objects.filter(cart=cart)
         serializer = CartItemSerializer(qs,many=True)
-        return Response(serializer.data)
+        return Response(get_success(200,"Cart data",serializer.data), status=status.HTTP_200_OK) 
+
     
     def post(self,request):
         data = request.data
@@ -28,13 +31,14 @@ class CartView(APIView):
         quantity = data.get('quantity')
         cart_items = CartItems(cart=cart,user=user,product=product,price=price,quantity=quantity)
         cart_items.save()
-        total_price=0
+        total_price = 0
         cart_items = CartItems.objects.filter(user=user,cart=cart.id)
         for items in cart_items:
             total_price += items.price
         cart.total_price = total_price
         cart.save()
-        return Response({'success':"Items added to the cart"})
+        return Response(get_success(200,"Items added to the cart"), status=status.HTTP_200_OK) 
+
     
     def patch(self,request):
         data = request.data
@@ -42,7 +46,8 @@ class CartView(APIView):
         quantity = data.get('quantity')
         cart_item.quantity += quantity
         cart_item.save()
-        return Response({"success":"Items added"})
+        return Response(get_success(200,"Items updated"), status=status.HTTP_200_OK) 
+
     
     def delete(self,request):
         user=request.user
@@ -53,15 +58,18 @@ class CartView(APIView):
         cart = Cart.objects.filter(user=user,status = False).first()
         qs = CartItems.objects.filter(cart = cart)
         serializer = CartItemSerializer(qs,many = True)
-        return Response(serializer.data)
+        return Response(get_success(200,"Items deleted",serializer.data), status=status.HTTP_200_OK) 
+
 
 class Checkout(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
+    
     def get(self,request):
         cart = Cart.objects.filter(user=request.user)
         serializer = CartSerializer(cart,many=True) 
-        return Response(serializer.data)
+        return Response(get_success(200,"Checkout items",serializer.data), status=status.HTTP_200_OK) 
+
 
 
 #after payment 

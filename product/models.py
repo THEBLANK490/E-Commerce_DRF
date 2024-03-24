@@ -1,6 +1,5 @@
 from django.db import models
 from user_authentication.models import UserAccount
-import datetime
 
 # Create your models here.
 class Category(models.Model):

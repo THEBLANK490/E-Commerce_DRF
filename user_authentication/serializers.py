@@ -2,43 +2,55 @@ from rest_framework import serializers
 from user_authentication.models import UserAccount
 from django.contrib.auth import authenticate
 from rest_framework.validators import UniqueValidator
-from user_authentication.validators import phone_number_validator,password_validator
-from user_authentication.models import Gender,Role
-
+from user_authentication.validators import phone_number_validator,password_validator,address_validator
+from user_authentication.models import Gender,UserAccount
 
 class RegisterSerializer(serializers.Serializer):
     email = serializers.EmailField(max_length = 255,required = True,validators = [UniqueValidator(queryset=UserAccount.objects.all())])
     password = serializers.CharField(max_length = 128,write_only = True,required = True,validators=[password_validator])
     password2 = serializers.CharField(max_length = 128,write_only = True,required = True)
-    photo = serializers.ImageField(required = False)
+    photo = serializers.ImageField(required=False, allow_empty_file=True, use_url=True)
     first_name = serializers.CharField(max_length=150)
     last_name = serializers.CharField(max_length=150)
     phone_number = serializers.CharField(max_length=15,validators=[phone_number_validator])
     gender = serializers.ChoiceField(choices=Gender.choices)
-    role = serializers.ChoiceField(choices=Role.choices)
+    address = serializers.CharField(max_length=255,validators =[address_validator])
 
+    class Meta:
+        model = UserAccount
+        fields = [
+            "email",
+            "first_name",
+            "last_name",
+            "phone_number",
+            "gender",
+            "password",
+            "address"
+        ]
+        
     def validate(self, data):        
         if data['password'] != data['password2']:
             raise serializers.ValidationError({"password":"Password Fields don't match"})
         return data
     
     def create(self,validated_data):
-        user = UserAccount.objects.create(email=validated_data['email'],first_name = validated_data['first_name'],last_name = validated_data['last_name'],phone_number=validated_data['phone_number'],gender = validated_data['gender'],role=validated_data['role'])
-        
-        if user.role =='ADMIN':
-            user.is_staff = True
-            user.is_superuser = True
-
-        if user.role =='STAFF':
-            user.is_staff = True
-            
-        user.set_password(validated_data['password'])
-        if 'photo' in validated_data:
+        fields={
+            'email': validated_data['email'],
+            'first_name': validated_data['first_name'],
+            'last_name': validated_data['last_name'],
+            'phone_number': validated_data['phone_number'],
+            'gender': validated_data['gender'],
+            'password':validated_data['password'],
+            'address':validated_data['address']
+            }
+        user = UserAccount.objects.create_user(**fields)
+        if validated_data['photo']:
             user.photo=validated_data['photo']
         user.save()
-        return validated_data 
-    
+        return user 
 
+    
+    
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField(max_length = 255,required = True)
     password = serializers.CharField(max_length = 128,write_only = True,required = True)
@@ -49,7 +61,6 @@ class LoginSerializer(serializers.Serializer):
         
         if email and password:
             user = authenticate(email=email, password=password)
-
             if user:
                 data['user'] = user
             else:

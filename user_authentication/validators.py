@@ -10,3 +10,9 @@ def phone_number_validator(phone):
 def password_validator(data):
     if len(data) < 5:
         raise serializers.ValidationError({'password':'Password length less than 5'})
+    
+def address_validator(data):
+    if len(data) < 5:
+        raise serializers.ValidationError({'address':'Address length less than 5'})
+    
+    
