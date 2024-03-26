@@ -23,39 +23,33 @@ class CartView(APIView):
 
     
     def post(self,request):
-        data = request.data
-        user = request.user
-        cart,_ = Cart.objects.get_or_create(user=user,status = False)
-        product = Product.objects.get(id=data.get('product'))
+        cart,_ = Cart.objects.get_or_create(user=request.user,status = False)
+        product = Product.objects.get(id=request.data.get('product'))
         price = product.price
-        quantity = data.get('quantity')
-        cart_items = CartItems(cart=cart,user=user,product=product,price=price,quantity=quantity)
+        quantity = request.data.get('quantity')
+        cart_items = CartItems(cart=cart,user=request.user,product=product,price=price,quantity=quantity)
         cart_items.save()
         total_price = 0
-        cart_items = CartItems.objects.filter(user=user,cart=cart.id)
+        cart_items = CartItems.objects.filter(user=request.user,cart=cart.id)
         for items in cart_items:
             total_price += items.price
         cart.total_price = total_price
         cart.save()
         return Response(get_success(200,"Items added to the cart"), status=status.HTTP_200_OK) 
-
     
     def patch(self,request):
-        data = request.data
-        cart_item = CartItems.objects.filter(id=data.get('id')).first()
-        quantity = data.get('quantity')
+        cart_item = CartItems.objects.filter(id=request.data.get('id')).first()
+        quantity = request.data.get('quantity')
         cart_item.quantity += quantity
         cart_item.save()
         return Response(get_success(200,"Items updated"), status=status.HTTP_200_OK) 
 
     
     def delete(self,request):
-        user=request.user
-        data = request.data
-        cart_item = CartItems.objects.get(id = data.get('id'))
+        cart_item = CartItems.objects.get(id = request.data.get('id'))
         cart_item.delete()
         
-        cart = Cart.objects.filter(user=user,status = False).first()
+        cart = Cart.objects.filter(user=request.user,status = False).first()
         qs = CartItems.objects.filter(cart = cart)
         serializer = CartItemSerializer(qs,many = True)
         return Response(get_success(200,"Items deleted",serializer.data), status=status.HTTP_200_OK) 

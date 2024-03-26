@@ -14,12 +14,16 @@ from pathlib import Path
 from dotenv import load_dotenv
 import os
 from datetime import timedelta
+# from celery import Celery
+
 
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'proj.settings')
 
+# app = Celery('proj')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
@@ -47,7 +51,7 @@ INSTALLED_APPS = [
     'product',
     'cart',
     'django_filters',
-    'admin_api'
+    'admin_api',
 ]
 
 MIDDLEWARE = [
@@ -170,3 +174,5 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=9),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=10),
 }
+
+KHALTI_VERIFY_URL = "https://a.khalti.com/api/v2/epayment/initiate/"

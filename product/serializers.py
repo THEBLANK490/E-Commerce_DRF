@@ -1,8 +1,8 @@
 from rest_framework import serializers
-from product.models import Category,Product,Review
-from user_authentication.models import UserAccount
+from product.models import Category,Product,Review,KhaltiInfo
+from user_authentication.serializers import UserAccount
 from product.validators import name_validator
-from rest_framework import viewsets
+
 class CategorySerializer(serializers.Serializer):
     name = serializers.CharField(max_length = 50,validators=[name_validator])
     
@@ -73,5 +73,52 @@ class ReviewSerializer(serializers.Serializer):
         return obj.user.first_name if obj.user else None
     
     def create(self, validated_data):
-        return Review.objects.create(product = validated_data['product_id'],description = validated_data['description'],user=validated_data['user_id'])
+        fields = {
+            'product' : validated_data['product_id'],
+            'description' : validated_data['description'],
+            'user' :validated_data['user_id']
+        }
+        return Review.objects.create(**fields)
 
+
+class KhaltiSerializer(serializers.Serializer):
+    pixd = serializers.CharField(max_length = 250)
+    transaction_id= serializers.CharField(max_length = 250)
+    tidx= serializers.CharField(max_length = 250)
+    amount= serializers.IntegerField()
+    total_amount=serializers.IntegerField()
+    mobile=serializers.CharField(max_length = 50)
+    status=serializers.CharField(max_length = 250)
+    purchase_order_id=serializers.CharField(max_length = 250)
+    purchase_order_name=serializers.CharField(max_length = 250)
+    
+    class Meta:
+        model = KhaltiInfo
+        fields={
+            "pixd",
+            "transaction_id",
+            "tixd",
+            "amount",
+            "total_amount",
+            "mobile",
+            "status",
+            "purchase_order_id",
+            "purchase_order_name"
+        }
+        
+    def create(self,validated_data):
+        data={
+            'pixd' : validated_data["pixd"],
+            'transaction_id' : validated_data["transaction_id"],
+            'tixd' : validated_data["tixd"],
+            'amount' : validated_data["amount"],
+            'total_amount' :validated_data["total_amount"],
+            'mobile' : validated_data["mobile"],
+            'status' : validated_data["status"],
+            'purchase_order_id' : validated_data["purchase_order_id"],
+            'purchase_order_name' :validated_data["purchase_order_name"],
+        }
+        
+        return KhaltiInfo.objects.create(**data)
+        
+        

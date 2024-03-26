@@ -13,7 +13,7 @@ urlpatterns = [
     path('user-auth/',include("user_authentication.urls",namespace="user_auth")),   
     path('product/',include("product.urls",namespace="product")),
     path('cart/',include("cart.urls",namespace="cart")),
-    path('user-admin/',include("admin_api.urls",namespace="user_admin"))
+    path('user-admin/',include("admin_api.urls",namespace="user_admin")),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

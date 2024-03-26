@@ -31,3 +31,28 @@ class Review(models.Model):
     
     def __str__(self):
         return self.description
+    
+class KhaltiInfo(models.Model):
+    """
+        pidx=ga6Zprq7XLRd5FXvRUmiRQ
+        transaction_id=KigPyKyaqdXQwXLzUdBdeC
+        tidx=KigPyKyaqdXQwXLzUdBdeC
+        amount=1300
+        total_amount=1300
+        mobile=98XXXXX001
+        status=Completed
+        purchase_order_id=test123
+        purchase_order_name=test123
+    """
+    pixd = models.CharField(max_length = 250)
+    transaction_id= models.CharField(max_length = 250)
+    tidx= models.CharField(max_length = 250)
+    amount= models.IntegerField()
+    total_amount=models.IntegerField()
+    mobile=models.CharField(max_length = 50)
+    status=models.CharField(max_length = 250)
+    purchase_order_id=models.CharField(max_length = 250)
+    purchase_order_name=models.CharField(max_length = 250)
+    
+    def __str__(self):
+        return self.pixd

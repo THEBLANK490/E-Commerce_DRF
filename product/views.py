@@ -1,9 +1,10 @@
 from rest_framework.views import APIView
+from Ecommerce import settings
 from product.models import Category,Product,Review
 from user_authentication.response import get_error,get_success
 from rest_framework.response import Response
 from rest_framework import status 
-from product.serializers import CategorySerializer,ProductSerializer,ReviewSerializer
+from product.serializers import CategorySerializer,ProductSerializer,ReviewSerializer,KhaltiSerializer
 from permission.permissions import AllowOnlyAuthorized
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -11,7 +12,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics
 from rest_framework import filters
 from product.pagination import CustomPagination
-# import requests as req
+import requests as req
+# from django.conf import settings
 
 # Create your views here.
 class CategoryView(APIView):
@@ -174,17 +176,36 @@ class ProductListPaginationView(generics.ListAPIView):
         return Response(data)
     
 # class VerifyEsewa(APIView):
-
 #     def get(self,request):
 #         url ="https://uat.esewa.com.np/epay/main"
-#         d = {'amt': 100,
-#             'pdc': 0,
-#             'psc': 0,
-#             'txAmt': 0,
+#         d = {'amt': request.data.amt,
+#             'pdc': request.data.pdc,
+#             'psc': request.data.psc,
+#             'txAmt': request,
 #             'tAmt': 100,
 #             'pid':'ee2c3ca1-696b-4cc5-a6be-2c40d929d453',
 #             'scd':'EPAYTEST',
 #             'su':'http://merchant.com.np/page/esewa_payment_success?q=su',
 #             'fu':'http://merchant.com.np/page/esewa_payment_failed?q=fu'}
 #         resp = req.post(url, d) 
+#         return Response(resp)
+    
+import json
+class Khalti_Data(APIView):
+    def post(self,request,*args,**kwargs):
+        # serializer = KhaltiSerializer(data=request.data)
+        headers = {
+                    'Authorization': 'key live_secret_key_68791341fdd94846a146f0457ff7b455',
+                    'Content-Type': 'application/json',
+                }
+        response = req.request("POST", settings.KHALTI_VERIFY_URL, headers=headers, data=json.dumps(request.data))        
+        return Response(json.loads(response.text))
+        # if serializer.is_valid():
+        #     serializer.save()
+        #     return Response(get_success(201,"Payment details saved",response), status=status.HTTP_201_CREATED) 
+        # return Response(get_error(402,"Invalid Payment details",serializer.errors), status=status.HTTP_402_PAYMENT_REQUIRED) 
+    
+class Khalti_data_save(APIView):
+    def post(self,request,*args,**kwargs):
+        serializer = KhaltiSerializer(data = request.data)
         
