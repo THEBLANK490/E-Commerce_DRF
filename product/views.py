@@ -15,7 +15,7 @@ from core.permissions import AllowAny, AllowOnlyAuthorized
 from core.response import get_success
 from core.utils import get_or_not_found
 from product.models import Category, Product, Review
-from product.pagination import CustomPagination
+from core.pagination import CustomPagination
 from product.serializers import CategorySerializer, ProductSerializer, ReviewSerializer
 
 
@@ -30,6 +30,15 @@ class CategoryView(APIView):
     serializer_class = CategorySerializer
 
     def get_queryset(self, id=None):
+        """
+        Retrieve all categories or a specific category by id.
+
+        Args:
+            id (int): The id of the category to retrieve.
+
+        Returns:
+            QuerySet: Queryset of Category objects.
+        """
         return Category.objects.all()
 
     @extend_schema(
@@ -56,6 +65,15 @@ class CategoryView(APIView):
         },
     )
     def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests to retrieve a category.
+
+        Args:
+            request: The incoming HTTP request.
+
+        Returns:
+            Response: JSON response containing the category data.
+        """
         id = request.query_params.get("id")
         qs = self.get_queryset()
         query = get_or_not_found(qs, id=id)
@@ -85,6 +103,15 @@ class CategoryView(APIView):
         },
     )
     def post(self, request):
+        """
+        Handles POST requests to create a category.
+
+        Args:
+            request: The incoming HTTP request.
+
+        Returns:
+            Response: JSON response containing the saved category data.
+        """
         serializer = self.serializer_class(
             data=request.data, context={"request": request}
         )
@@ -119,6 +146,15 @@ class CategoryView(APIView):
         },
     )
     def patch(self, request, *args, **kwargs):
+        """
+        Handles PATCH requests to update a category.
+
+        Args:
+            request: The incoming HTTP request.
+
+        Returns:
+            Response: JSON response containing the updated category data.
+        """
         id = request.query_params.get("id")
         qs = self.get_queryset()
         instance = get_or_not_found(qs, id=id)
@@ -157,6 +193,15 @@ class CategoryView(APIView):
         },
     )
     def delete(self, request, *args, **kwargs):
+        """
+        Handles DELETE requests to delete a category.
+
+        Args:
+            request: The incoming HTTP request.
+
+        Returns:
+            Response: JSON response indicating successful deletion.
+        """
         id = request.query_params.get("id")
         qs = self.get_queryset()
         query = get_or_not_found(qs, id=id)
@@ -167,11 +212,21 @@ class CategoryView(APIView):
 
 
 class Category_all_view(APIView):
+    """
+    It is a view that is used to get all data from category model.
+    """
+
     authentication_classes = []
     permission_classes = [AllowAny]
     serializer_class = CategorySerializer
 
     def get_queryset(self) -> Category:
+        """
+        Retrieve all categories.
+
+        Returns:
+            QuerySet: Queryset of all Category objects.
+        """
         return Category.objects.all()
 
     @extend_schema(
@@ -195,6 +250,15 @@ class Category_all_view(APIView):
         },
     )
     def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests to retrieve all category data.
+
+        Args:
+            request: The incoming HTTP request.
+
+        Returns:
+            Response: JSON response containing all category data.
+        """
         qs = self.get_queryset()
         serializer = self.serializer_class(qs, many=True)
         return Response(
@@ -215,6 +279,12 @@ class ProductView(APIView):
     serializer_class = ProductSerializer
 
     def get_queryset(self) -> Product:
+        """
+        Retrieve all products or a specific product by id.
+
+        Returns:
+            QuerySet: Queryset of Product objects.
+        """
         return Product.objects.all()
 
     @extend_schema(
@@ -241,6 +311,16 @@ class ProductView(APIView):
         },
     )
     def get(self, request, id=None):
+        """
+        Handles GET requests to retrieve a product.
+
+        Args:
+            request: The incoming HTTP request.
+            id (int): The id of the product to retrieve.
+
+        Returns:
+            Response: JSON response containing the product data.
+        """
         id = request.query_params.get("id")
         qs = self.get_queryset()
         query = get_or_not_found(qs, id=id)
@@ -270,6 +350,15 @@ class ProductView(APIView):
         },
     )
     def post(self, request):
+        """
+        Handles POST requests to create a product.
+
+        Args:
+            request: The incoming HTTP request.
+
+        Returns:
+            Response: JSON response containing the saved product data.
+        """
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -302,6 +391,16 @@ class ProductView(APIView):
         },
     )
     def patch(self, request, id=None):
+        """
+        Handles PATCH requests to update a product.
+
+        Args:
+            request: The incoming HTTP request.
+            id (int): The id of the product to update.
+
+        Returns:
+            Response: JSON response containing the updated product data.
+        """
         id = request.query_params.get("id")
         qs = self.get_queryset()
         instance = get_or_not_found(qs, id=id)
@@ -338,6 +437,15 @@ class ProductView(APIView):
         },
     )
     def delete(self, request, *args, **kwargs):
+        """
+        Handles DELETE requests to delete a product.
+
+        Args:
+            request: The incoming HTTP request.
+
+        Returns:
+            Response: JSON response indicating successful deletion.
+        """
         id = request.query_params.get("id")
         qs = self.get_queryset()
         query = get_or_not_found(qs, id=id)
@@ -348,11 +456,21 @@ class ProductView(APIView):
 
 
 class Product_all_view(APIView):
+    """
+    It is a view that is used to get all data from product model.
+    """
+
     authentication_classes = []
     permission_classes = [AllowAny]
     serializer_class = ProductSerializer
 
     def get_queryset(self) -> Product:
+        """
+        Retrieve all products.
+
+        Returns:
+            QuerySet: Queryset of all Product objects.
+        """
         return Product.objects.all()
 
     @extend_schema(
@@ -376,6 +494,15 @@ class Product_all_view(APIView):
         },
     )
     def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests to retrieve all product data.
+
+        Args:
+            request: The incoming HTTP request.
+
+        Returns:
+            Response: JSON response containing all product data.
+        """
         qs = self.get_queryset()
         serializer = self.serializer_class(qs, many=True)
         return Response(
@@ -385,11 +512,24 @@ class Product_all_view(APIView):
 
 
 class ReviewView(APIView):
+    """
+    It is a view that is used to get and post data for review model.
+    """
+
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = ReviewSerializer
 
     def get(self, request):
+        """
+        Handles GET requests to retrieve all reviews.
+
+        Args:
+            request: The incoming HTTP request.
+
+        Returns:
+            Response: JSON response containing all review data.
+        """
         reviews = Review.objects.all()
         serializer = self.serializer_class(reviews, many=True)
         return Response(
@@ -397,6 +537,15 @@ class ReviewView(APIView):
         )
 
     def post(self, request):
+        """
+        Handles POST requests to create a new review.
+
+        Args:
+            request: The incoming HTTP request.
+
+        Returns:
+            Response: JSON response containing the created review data.
+        """
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -408,6 +557,15 @@ class ReviewView(APIView):
 
 class CategoryFilter(APIView):
     def get(self, request):
+        """
+        Handles GET requests to filter products by category.
+
+        Args:
+            request: The incoming HTTP request.
+
+        Returns:
+            Response: JSON response containing filtered product data.
+        """
         category = self.request.query_params.get("category")
         if category:
             qs = Product.objects.filter(category__name=category)
@@ -425,6 +583,10 @@ class CategoryFilter(APIView):
 
 
 class ProductFilter(generics.ListAPIView):
+    """
+    View for filtering products by category and name.
+    """
+
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     filter_backends = [DjangoFilterBackend]
@@ -432,6 +594,10 @@ class ProductFilter(generics.ListAPIView):
 
 
 class ProductSearchView(generics.ListAPIView):
+    """
+    View for searching products by name.
+    """
+
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     filter_backends = [filters.SearchFilter]
@@ -439,11 +605,24 @@ class ProductSearchView(generics.ListAPIView):
 
 
 class ProductListPaginationView(generics.ListAPIView):
+    """
+    View for paginating product list.
+    """
+
     serializer_class = ProductSerializer
     queryset = Product.objects.all()
     pagination_class = CustomPagination
 
     def get(self, request):
+        """
+        Handles GET requests to retrieve paginated product list.
+
+        Args:
+            request: The incoming HTTP request.
+
+        Returns:
+            Response: JSON response containing paginated product data.
+        """
         queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
         if page is not None:

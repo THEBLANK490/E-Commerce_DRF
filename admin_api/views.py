@@ -18,11 +18,26 @@ from user_authentication.models import UserAccount
 
 # Create your views here.
 class AccountRole(APIView):
+    """
+    API view for managing user roles by admin.
+
+    Attributes:
+        authentication_classes (list): The authentication classes used for this view.
+        permission_classes (list): The permission classes used for this view.
+        serializer_class (class): The serializer class used for this view.
+    """
+
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAdmin]
     serializer_class = AdminAccountRoleSerializer
 
     def get_queryset(self):
+        """
+        Returns the queryset of user accounts.
+
+        Returns:
+            QuerySet: The queryset of user accounts.
+        """
         return UserAccount.objects.all().exclude(is_staff=True)
 
     @extend_schema(
@@ -48,6 +63,17 @@ class AccountRole(APIView):
         },
     )
     def patch(self, request, *args, **kwargs):
+        """
+        Patch method to update user role.
+
+        Args:
+            request (Request): The request object.
+            *args: Additional positional arguments.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            Response: The response object.
+        """
         id = request.data.get("id")
         qs = self.get_queryset()
         query = get_or_not_found(qs, id=id)
@@ -61,6 +87,14 @@ class AccountRole(APIView):
 
 
 class GetStatistics(APIView):
+    """
+    API view for getting statistics.
+
+    Attributes:
+        authentication_classes (list): The authentication classes used for this view.
+        permission_classes (list): The permission classes used for this view.
+    """
+
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAdmin]
 
@@ -83,6 +117,17 @@ class GetStatistics(APIView):
         },
     )
     def get(self, request, *args, **kwargs):
+        """
+        Get method to retrieve statistics data.
+
+        Args:
+            request (Request): The request object.
+            *args: Additional positional arguments.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            Response: The response object.
+        """
         total_customers = UserAccount.objects.filter(role="CUSTOMER").count()
         total_staffs = UserAccount.objects.filter(role="STAFF").count()
         total_products = Product.objects.all().count()
@@ -99,6 +144,14 @@ class GetStatistics(APIView):
 
 
 class UserListAdmin(APIView):
+    """
+    API view for getting user list by admin.
+
+    Attributes:
+        authentication_classes (list): The authentication classes used for this view.
+        permission_classes (list): The permission classes used for this view.
+    """
+
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAdmin]
 
@@ -121,6 +174,15 @@ class UserListAdmin(APIView):
         },
     )
     def get(self, request):
+        """
+        Get method to retrieve user list.
+
+        Args:
+            request (Request): The request object.
+
+        Returns:
+            Response: The response object.
+        """
         qs = UserAccount.objects.all().exclude(role="ADMIN")
         serializer = UserDataSerializer(qs, many=True)
         return Response(

@@ -5,6 +5,24 @@ from payment.models import KhaltiInfo
 
 
 class KhaltiSerializer(serializers.Serializer):
+    """
+    Serializer for saving data in db.
+
+    Attributes:
+        user (CharField): The email of the user.
+        pixd (CharField): The PIXD information.
+        transaction_id (CharField): The transaction ID.
+        total_amount (IntegerField): The total amount.
+        mobile (CharField): The mobile number.
+        status (CharField): The status.
+        user_email (CharField): The email of the user.
+        purchase_order_id (CharField): The purchase order ID.
+        purchase_order_name (CharField): The purchase order name.
+
+    Methods:
+        create: Creates a new KhaltiInfo instance with the validated data.
+    """
+
     user = serializers.CharField(source="user.email")
     pixd = serializers.CharField(max_length=250)
     transaction_id = serializers.CharField(max_length=250)
@@ -16,6 +34,15 @@ class KhaltiSerializer(serializers.Serializer):
     purchase_order_name = serializers.CharField(max_length=250)
 
     def create(self, validated_data: dict) -> KhaltiInfo:
+        """
+        Creates a new KhaltiInfo instance with the validated data.
+
+        Args:
+            validated_data (dict): The validated data for KhaltiInfo creation.
+
+        Returns:
+            KhaltiInfo: The newly created KhaltiInfo instance.
+        """
         data = {
             "user": validated_data["user"],
             "pixd": validated_data["pixd"],
@@ -34,12 +61,16 @@ class KhaltiSerializer(serializers.Serializer):
 
 
 class KhaltiUserSerializer:
+    """Serializer to show the fields in swagger"""
+
     name = serializers.CharField()
     email = serializers.CharField()
     phone = serializers.CharField()
 
 
 class KhaltiPaymentSerializer(serializers.Serializer):
+    """Serializer to show the fields in swagger"""
+
     return_url = serializers.CharField()
     website_url = serializers.CharField()
     amount = serializers.IntegerField()
@@ -48,4 +79,6 @@ class KhaltiPaymentSerializer(serializers.Serializer):
 
 
 class KhaltiVerifySerializer(serializers.Serializer):
+    """Serializer to show the fields in swagger"""
+
     pidx = serializers.CharField()

@@ -20,6 +20,10 @@ from payment.serializers import (
 
 # Create your views here.
 class Khalti_Data(APIView):
+    """
+    API view to interact with Khalti payment service.
+    """
+
     @extend_schema(
         operation_id="Khalti Api to get payment url",
         description="""
@@ -28,6 +32,14 @@ class Khalti_Data(APIView):
         request=KhaltiPaymentSerializer,
     )
     def post(self, request, *args, **kwargs):
+        """
+        Handles POST requests to provide the payment URL.
+
+        Args:
+            request: The incoming HTTP request.
+        Returns:
+            Response: JSON response containing the payment URL.
+        """
         headers = {
             "Authorization": request.headers.get("Authorization"),
             "Content-Type": "application/json",
@@ -39,6 +51,10 @@ class Khalti_Data(APIView):
 
 
 class Khalti_Verification(APIView):
+    """
+    API view to verify Khalti payment.
+    """
+
     @extend_schema(
         operation_id="Khalti Api to get payment url",
         description="""
@@ -47,6 +63,14 @@ class Khalti_Verification(APIView):
         request=KhaltiVerifySerializer,
     )
     def post(self, request, *args, **kwargs):
+        """
+        Handles POST requests to verify Khalti payment.
+
+        Args:
+            request: The incoming HTTP request.
+        Returns:
+            Response: JSON response containing the verification result.
+        """
         headers = {
             "Authorization": request.headers.get("Authorization"),
             "Content-Type": "application/json",
@@ -61,6 +85,10 @@ class Khalti_Verification(APIView):
 
 
 class Khalti_data_save(APIView):
+    """
+    API view to save transaction details in the database.
+    """
+
     @extend_schema(
         operation_id="Saves the transaction details in the db",
         description="""
@@ -83,6 +111,14 @@ class Khalti_data_save(APIView):
         },
     )
     def post(self, request, *args, **kwargs):
+        """
+        Saves the transaction details in the database.
+
+        Args:
+            request: The incoming HTTP request.
+        Returns:
+            Response: Success message with status code 201 if the transaction data is saved successfully.
+        """
         serializer = KhaltiSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()

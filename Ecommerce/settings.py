@@ -192,6 +192,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "user_authentication.UserAccount"
 
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=9),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=10),
+}
+
 KHALTI_URL = config("KHALTI_URL")
 KHALTI_VERIFY_URL = config("KHALTI_VERIFY_URL")
 

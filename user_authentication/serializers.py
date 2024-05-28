@@ -15,6 +15,25 @@ from user_authentication.models import Gender, UserAccount
 
 
 class RegisterSerializer(serializers.Serializer):
+    """
+    Serializer for user registration.
+
+    Attributes:
+        email (EmailField): The email address of the user.
+        password (CharField): The password for the user account.
+        password2 (CharField): Confirmation of the password.
+        photo (ImageField): The profile photo of the user (optional).
+        first_name (CharField): The first name of the user.
+        last_name (CharField): The last name of the user.
+        phone_number (CharField): The phone number of the user.
+        gender (ChoiceField): The gender of the user.
+        address (CharField): The address of the user.
+
+    Methods:
+        validate: Validates the data, ensuring password fields match.
+        create: Creates a new user account with the validated data.
+    """
+
     email = serializers.EmailField(
         max_length=255,
         required=True,
@@ -48,12 +67,33 @@ class RegisterSerializer(serializers.Serializer):
         ]
 
     def validate(self, data: dict) -> dict:
+        """
+        Validates the data, ensuring password fields match.
+
+        Args:
+            data (dict): The data to validate.
+
+        Returns:
+            dict: The validated data.
+
+        Raises:
+            serializers.ValidationError: If password fields don't match.
+        """
         if data["password"] != data["password2"]:
             raise serializers.ValidationError({"error": "Password Fields don't match"})
         return data
 
     @transaction.atomic
     def create(self, validated_data: dict) -> UserAccount:
+        """
+        Creates a new user account with the validated data.
+
+        Args:
+            validated_data (dict): The validated data for user creation.
+
+        Returns:
+            UserAccount: The newly created user account.
+        """
         fields = {
             "email": validated_data["email"],
             "first_name": validated_data["first_name"],
@@ -72,10 +112,33 @@ class RegisterSerializer(serializers.Serializer):
 
 
 class LoginSerializer(serializers.Serializer):
+    """
+    Serializer for user login.
+
+    Attributes:
+        email (EmailField): The email address of the user (required).
+        password (CharField): The password for the user account (required).
+
+    Methods:
+        validate: Validates the email and password, authenticating the user.
+    """
+
     email = serializers.EmailField(max_length=255, required=True)
     password = serializers.CharField(max_length=128, write_only=True, required=True)
 
     def validate(self, data: dict) -> dict:
+        """
+        Validates the email and password, authenticating the user.
+
+        Args:
+            data (dict): The data containing email and password.
+
+        Returns:
+            dict: The validated data.
+
+        Raises:
+            serializers.ValidationError: If authentication fails.
+        """
         email = data.get("email")
         password = data.get("password")
 
@@ -93,9 +156,25 @@ class LoginSerializer(serializers.Serializer):
 
 
 class LogoutSerializer(serializers.Serializer):
+    """
+    Serializer for user logout.
+
+    Attributes:
+        refresh (CharField): The refresh token used for logout.
+
+    Methods:
+        save: Blacklists the provided refresh token.
+    """
+
     refresh = serializers.CharField()
 
     def save(self) -> RefreshToken:
+        """
+        Blacklists the provided refresh token.
+
+        Returns:
+            RefreshToken: The blacklisted refresh token.
+        """
         Refresh_token = self.validated_data["refresh"]
         refresh_token = RefreshToken(Refresh_token)
         refresh_token.blacklist()
@@ -103,6 +182,21 @@ class LogoutSerializer(serializers.Serializer):
 
 
 class ProfileSerializer(serializers.Serializer):
+    """
+    Serializer for user profile.
+
+    Attributes:
+        email (EmailField): The email address of the user.
+        photo (FileField): The profile photo of the user (optional).
+        first_name (CharField): The first name of the user.
+        last_name (CharField): The last name of the user.
+        phone_number (CharField): The phone number of the user.
+        address (CharField): The address of the user.
+
+    Methods:
+        update: Updates the user profile with the validated data.
+    """
+
     email = serializers.EmailField(max_length=255)
     photo = serializers.FileField(required=False)
     first_name = serializers.CharField(max_length=150)
@@ -114,6 +208,16 @@ class ProfileSerializer(serializers.Serializer):
     address = serializers.CharField(max_length=255)
 
     def update(self, instance: UserAccount, validated_data: dict) -> UserAccount:
+        """
+        Updates the user profile with the validated data.
+
+        Args:
+            instance (UserAccount): The user account instance to be updated.
+            validated_data (dict): The validated data for user profile update.
+
+        Returns:
+            UserAccount: The updated user account.
+        """
         instance.email = validated_data.get("email", instance.email)
         instance.first_name = validated_data.get("first_name", instance.first_name)
         instance.last_name = validated_data.get("last_name", instance.last_name)
@@ -128,17 +232,51 @@ class ProfileSerializer(serializers.Serializer):
 
 
 class Password_Changer_Serializer(serializers.Serializer):
+    """
+    Serializer for changing user password.
+
+    Attributes:
+        password (CharField): The new password for the user account.
+        password2 (CharField): Confirmation of the new password.
+
+    Methods:
+        validate: Validates that the new password fields match.
+        update: Updates the user account password with the new password.
+    """
+
     password = serializers.CharField(
         max_length=128, write_only=True, required=True, validators=[password_validator]
     )
     password2 = serializers.CharField(max_length=128, write_only=True, required=True)
 
     def validate(self, data: dict) -> dict:
+        """
+        Validates that the new password fields match.
+
+        Args:
+            data (dict): The data containing new password fields.
+
+        Returns:
+            dict: The validated data.
+
+        Raises:
+            serializers.ValidationError: If password fields don't match.
+        """
         if data["password"] != data["password2"]:
             raise serializers.ValidationError({"error": "Password Fields don't match"})
         return data
 
     def update(self, instance: UserAccount, validated_data: dict) -> UserAccount:
+        """
+        Updates the user account password with the new password.
+
+        Args:
+            instance (UserAccount): The user account instance to be updated.
+            validated_data (dict): The validated data containing the new password.
+
+        Returns:
+            UserAccount: The updated user account.
+        """
         instance.password = make_password(
             validated_data.get("password", instance.password)
         )

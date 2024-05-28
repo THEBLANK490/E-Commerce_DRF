@@ -18,11 +18,29 @@ from core.utils import get_or_not_found
 
 # Create your views here.
 class CartView(APIView):
+    """
+    API view for managing user's cart.
+
+    Attributes:
+        authentication_classes (list): The authentication classes used for this view.
+        permission_classes (list): The permission classes used for this view.
+        serializer_class (class): The serializer class used for this view.
+    """
+
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = CartSerializer
 
     def get_queryset(self, user):
+        """
+        Retrieves the cart queryset for the given user.
+
+        Args:
+            user: The user for whom to retrieve the cart.
+
+        Returns:
+            QuerySet: The cart queryset.
+        """
         return Cart.objects.filter(user=user, status=False).first()
 
     @extend_schema(
@@ -46,6 +64,15 @@ class CartView(APIView):
         },
     )
     def get(self, request):
+        """
+        Get method to retrieve user's cart.
+
+        Args:
+            request (Request): The request object.
+
+        Returns:
+            Response: The response object.
+        """
         cart = self.get_queryset(user=request.user)
         serializer = CartSerializer(cart)
         return Response(
@@ -76,6 +103,15 @@ class CartView(APIView):
         },
     )
     def post(self, request):
+        """
+        Post method to create a cart.
+
+        Args:
+            request (Request): The request object.
+
+        Returns:
+            Response: The response object.
+        """
         qs = self.get_queryset(user=request.user)
         get_error(qs, "Cart already exists.")
         serializer = self.serializer_class(data={"user": request.user})
@@ -105,6 +141,15 @@ class CartView(APIView):
         },
     )
     def delete(self, request):
+        """
+        Delete method to delete a cart.
+
+        Args:
+            request (Request): The request object.
+
+        Returns:
+            Response: The response object.
+        """
         id = request.query_params.get("id")
         qs = Cart.objects.filter(id=id)
         instance = get_or_not_found(qs, id=id)
@@ -115,11 +160,26 @@ class CartView(APIView):
 
 
 class CartItemView(APIView):
+    """
+    API view for managing cart items.
+
+    Attributes:
+        authentication_classes (list): The authentication classes used for this view.
+        permission_classes (list): The permission classes used for this view.
+        serializer_class (class): The serializer class used for this view.
+    """
+
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = CartItemSerializer
 
     def get_queryset(self):
+        """
+        Retrieves the queryset for cart items.
+
+        Returns:
+            QuerySet: The cart items queryset.
+        """
         return CartItems.objects.all()
 
     @extend_schema(
@@ -143,6 +203,15 @@ class CartItemView(APIView):
         },
     )
     def get(self, request):
+        """
+        Get method to retrieve cart items.
+
+        Args:
+            request (Request): The request object.
+
+        Returns:
+            Response: The response object.
+        """
         qs = CartItems.objects.filter(user=request.user)
         serializer = self.serializer_class(qs, many=True)
         return Response(
@@ -171,6 +240,15 @@ class CartItemView(APIView):
         },
     )
     def post(self, request):
+        """
+        Post method to create a cart item.
+
+        Args:
+            request (Request): The request object.
+
+        Returns:
+            Response: The response object.
+        """
         serializer = self.serializer_class(
             data=request.data, context={"request": request}
         )
@@ -204,6 +282,15 @@ class CartItemView(APIView):
         },
     )
     def patch(self, request, *args, **kwargs):
+        """
+        Patch method to update a cart item.
+
+        Args:
+            request (Request): The request object.
+
+        Returns:
+            Response: The response object.
+        """
         id = request.query_params.get("id")
         qs = self.get_queryset()
         instance = get_or_not_found(qs, id=id)
@@ -240,6 +327,15 @@ class CartItemView(APIView):
         },
     )
     def delete(self, request, *args, **kwargs):
+        """
+        Delete method to delete a cart item.
+
+        Args:
+            request (Request): The request object.
+
+        Returns:
+            Response: The response object.
+        """
         id = request.query_params.get("id")
         qs = self.get_queryset()
         instance = get_or_not_found(qs, id=id)
@@ -250,6 +346,15 @@ class CartItemView(APIView):
 
 
 class Checkout(APIView):
+    """
+    API view for handling checkout process.
+
+    Attributes:
+        authentication_classes (list): The authentication classes used for this view.
+        permission_classes (list): The permission classes used for this view.
+        serializer_class (class): The serializer class used for this view.
+    """
+
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = CheckoutSerializer
@@ -273,6 +378,15 @@ class Checkout(APIView):
         },
     )
     def get(self, request):
+        """
+        Get method to retrieve checkout items.
+
+        Args:
+            request (Request): The request object.
+
+        Returns:
+            Response: The response object.
+        """
         cart = CartItems.objects.filter(user=request.user)
         serializer = self.serializer_class(cart, many=True)
         return Response(

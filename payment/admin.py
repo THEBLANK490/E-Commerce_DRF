@@ -5,6 +5,14 @@ from payment.models import KhaltiInfo
 
 # Register your models here.
 class KhaltiInfoAdmin(admin.ModelAdmin):
+    """
+    Admin model configuration for KhaltiInfo.
+
+    Attributes:
+        list_display (list): The fields to display in the admin list view.
+        search_fields (list): The fields to enable searching in the admin list view.
+    """
+
     list_display = [
         "id",
         "user",

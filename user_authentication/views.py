@@ -24,6 +24,10 @@ from user_authentication.serializers import (
 
 # Create your views here.
 class Register(APIView):
+    """
+    API view for user registration.
+    """
+
     permission_classes = [AllowAny]
     serializer_class = RegisterSerializer
 
@@ -49,6 +53,15 @@ class Register(APIView):
         },
     )
     def post(self, request, *args, **kwargs):
+        """
+        Handles POST requests to create a new user.
+
+        Args:
+            request: The incoming HTTP request.
+
+        Returns:
+            Response: JSON response containing the created user data.
+        """
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -59,6 +72,10 @@ class Register(APIView):
 
 
 class Login(APIView):
+    """
+    API view for user login.
+    """
+
     permission_classes = [AllowAny]
     serializer_class = LoginSerializer
 
@@ -84,6 +101,15 @@ class Login(APIView):
         },
     )
     def post(self, request):
+        """
+        Handles POST requests to log in a user.
+
+        Args:
+            request: The incoming HTTP request.
+
+        Returns:
+            Response: JSON response containing the logged-in user data.
+        """
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data["user"]
@@ -101,6 +127,10 @@ class Login(APIView):
 
 
 class Logout(APIView):
+    """
+    API view for user logout.
+    """
+
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = LogoutSerializer
@@ -124,6 +154,15 @@ class Logout(APIView):
         },
     )
     def post(self, request):
+        """
+        Handles POST requests to log out a user.
+
+        Args:
+            request: The incoming HTTP request.
+
+        Returns:
+            Response: JSON response confirming the logout.
+        """
         serializer = self.serializer_class(
             data=request.data, context={"request": request}
         )
@@ -136,11 +175,21 @@ class Logout(APIView):
 
 
 class ViewProfile(APIView):
+    """
+    API view for viewing and updating user profile.
+    """
+
     authentication_classes = [JWTAuthentication]
     permission_classes = [Is_User, IsAuthenticated]
     serializer_class = ProfileSerializer
 
     def get_queryset(self):
+        """
+        Retrieve all UserAccount.
+
+        Returns:
+            QuerySet: Queryset of all UserAccount objects.
+        """
         return UserAccount.objects.all()
 
     @extend_schema(
@@ -163,6 +212,17 @@ class ViewProfile(APIView):
         },
     )
     def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests to retrieve user profile.
+
+        Args:
+            request: The incoming HTTP request.
+            *args: Additional arguments.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            Response: JSON response containing user data.
+        """
         qs = self.get_queryset()
         query = get_or_not_found(qs, id=kwargs.get("id"))
         serializer = self.serializer_class(query)
@@ -192,6 +252,17 @@ class ViewProfile(APIView):
         },
     )
     def patch(self, request, *args, **kwargs):
+        """
+        Handles PATCH requests to update user profile.
+
+        Args:
+            request: The incoming HTTP request.
+            *args: Additional arguments.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            Response: JSON response confirming the profile update.
+        """
         qs = self.get_queryset()
         query = get_or_not_found(qs, id=kwargs.get("id"))
         serializer = self.serializer_class(
@@ -206,11 +277,21 @@ class ViewProfile(APIView):
 
 
 class Password_Changer(APIView):
+    """
+    API view for changing user password.
+    """
+
     authentication_classes = [JWTAuthentication]
     permission_classes = [Is_User, IsAuthenticated]
     serializer_class = Password_Changer_Serializer
 
     def get_queryset(self) -> UserAccount:
+        """
+        Retrieve all UserAccount.
+
+        Returns:
+            QuerySet: Queryset of all UserAccount objects.
+        """
         return UserAccount.objects.all()
 
     @extend_schema(
@@ -235,6 +316,17 @@ class Password_Changer(APIView):
         },
     )
     def patch(self, request, *args, **kwargs):
+        """
+        Handles PATCH requests to change user password.
+
+        Args:
+            request: The incoming HTTP request.
+            *args: Additional arguments.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            Response: JSON response confirming the password change.
+        """
         qs = self.get_queryset()
         query = get_or_not_found(qs, id=kwargs.get("id"))
         serializer = self.serializer_class(
