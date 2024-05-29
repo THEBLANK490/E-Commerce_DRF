@@ -556,6 +556,29 @@ class ReviewView(APIView):
 
 
 class CategoryFilter(APIView):
+    @extend_schema(
+        operation_id="Category Filter API",
+        description="""
+            Displays all the filtered category data.
+        """,
+        parameters=[
+            OpenApiParameter(name="category", required=True),
+        ],
+        responses={
+            status.HTTP_200_OK: inline_serializer(
+                "success_product_get_response",
+                fields={
+                    "code": serializers.IntegerField(default=200),
+                    "message": serializers.CharField(
+                        default="Successfully fetched product data."
+                    ),
+                    "data": serializers.JSONField(default={}),
+                    "error": serializers.JSONField(default={}),
+                },
+            ),
+            status.HTTP_401_UNAUTHORIZED: ErrorResponse401Serializer,
+        },
+    )
     def get(self, request):
         """
         Handles GET requests to filter products by category.
