@@ -39,7 +39,7 @@ class AllowOnlyAuthorized(BasePermission):
         """
         if request.method == "GET":
             return True
-        elif request.user and (
+        elif request.user.is_authenticated and (
             request.user.role == "STAFF" or request.user.role == "ADMIN"
         ):
             return True

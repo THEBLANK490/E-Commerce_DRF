@@ -20,7 +20,7 @@ from product.serializers import CategorySerializer, ProductSerializer, ReviewSer
 
 
 # Create your views here.
-class CategoryView(APIView):
+class CategoryIndividualView(APIView):
     """
     It is a view that is used to perform CRUD in category model.
     """
@@ -29,7 +29,7 @@ class CategoryView(APIView):
     permission_classes = [AllowOnlyAuthorized]
     serializer_class = CategorySerializer
 
-    def get_queryset(self, id=None):
+    def get_queryset(self):
         """
         Retrieve all categories or a specific category by id.
 
@@ -46,9 +46,6 @@ class CategoryView(APIView):
         description="""
             Displays the category of that particular id.
         """,
-        parameters=[
-            OpenApiParameter(name="id", required=True),
-        ],
         responses={
             status.HTTP_200_OK: inline_serializer(
                 "success_category_get_response",
@@ -74,52 +71,12 @@ class CategoryView(APIView):
         Returns:
             Response: JSON response containing the category data.
         """
-        id = request.query_params.get("id")
         qs = self.get_queryset()
-        query = get_or_not_found(qs, id=id)
+        query = get_or_not_found(qs, id=kwargs.get("id"))
         serializer = self.serializer_class(query)
         return Response(
             get_success(202, "Successfully fetched category data.", serializer.data),
             status=status.HTTP_202_ACCEPTED,
-        )
-
-    @extend_schema(
-        operation_id="Category-Items post API",
-        description="""
-        Creates a category.
-        """,
-        request=CategorySerializer,
-        responses={
-            status.HTTP_201_CREATED: inline_serializer(
-                "success_category_response",
-                fields={
-                    "code": serializers.IntegerField(default=200),
-                    "message": serializers.CharField(default="Category data saved"),
-                    "data": serializers.JSONField(default={}),
-                    "error": serializers.JSONField(default={}),
-                },
-            ),
-            status.HTTP_400_BAD_REQUEST: ValidationErrorResponseSerializer,
-        },
-    )
-    def post(self, request):
-        """
-        Handles POST requests to create a category.
-
-        Args:
-            request: The incoming HTTP request.
-
-        Returns:
-            Response: JSON response containing the saved category data.
-        """
-        serializer = self.serializer_class(
-            data=request.data, context={"request": request}
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(
-            get_success(201, "Category data saved", serializer.data),
-            status=status.HTTP_201_CREATED,
         )
 
     @extend_schema(
@@ -128,9 +85,6 @@ class CategoryView(APIView):
         Allows an user to update the Category.
         """,
         request=CategorySerializer,
-        parameters=[
-            OpenApiParameter(name="id", required=True),
-        ],
         responses={
             status.HTTP_200_OK: inline_serializer(
                 "success_update_response",
@@ -155,9 +109,8 @@ class CategoryView(APIView):
         Returns:
             Response: JSON response containing the updated category data.
         """
-        id = request.query_params.get("id")
         qs = self.get_queryset()
-        instance = get_or_not_found(qs, id=id)
+        instance = get_or_not_found(qs, id=kwargs.get("id"))
         serializer = self.serializer_class(
             instance=instance, data=request.data, context={"request": request}
         )
@@ -174,9 +127,6 @@ class CategoryView(APIView):
         Allows an user delete the Category.
         """,
         request=CategorySerializer,
-        parameters=[
-            OpenApiParameter(name="id", required=True),
-        ],
         responses={
             status.HTTP_200_OK: inline_serializer(
                 "success_delete_response",
@@ -202,22 +152,21 @@ class CategoryView(APIView):
         Returns:
             Response: JSON response indicating successful deletion.
         """
-        id = request.query_params.get("id")
         qs = self.get_queryset()
-        query = get_or_not_found(qs, id=id)
+        query = get_or_not_found(qs, id=kwargs.get("id"))
         query.delete()
         return Response(
             get_success(200, "Category data deleted"), status=status.HTTP_200_OK
         )
 
 
-class Category_all_view(APIView):
+class Category_get_post_view(APIView):
     """
     It is a view that is used to get all data from category model.
     """
 
-    authentication_classes = []
-    permission_classes = [AllowAny]
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [AllowOnlyAuthorized]
     serializer_class = CategorySerializer
 
     def get_queryset(self) -> Category:
@@ -268,8 +217,47 @@ class Category_all_view(APIView):
             status=status.HTTP_202_ACCEPTED,
         )
 
+    @extend_schema(
+        operation_id="Category-Items post API",
+        description="""
+        Creates a category.
+        """,
+        request=CategorySerializer,
+        responses={
+            status.HTTP_201_CREATED: inline_serializer(
+                "success_category_response",
+                fields={
+                    "code": serializers.IntegerField(default=200),
+                    "message": serializers.CharField(default="Category data saved"),
+                    "data": serializers.JSONField(default={}),
+                    "error": serializers.JSONField(default={}),
+                },
+            ),
+            status.HTTP_400_BAD_REQUEST: ValidationErrorResponseSerializer,
+        },
+    )
+    def post(self, request):
+        """
+        Handles POST requests to create a category.
 
-class ProductView(APIView):
+        Args:
+            request: The incoming HTTP request.
+
+        Returns:
+            Response: JSON response containing the saved category data.
+        """
+        serializer = self.serializer_class(
+            data=request.data, context={"request": request}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            get_success(201, "Category data saved", serializer.data),
+            status=status.HTTP_201_CREATED,
+        )
+
+
+class ProductIndividualView(APIView):
     """
     It is a view that is used to perform CRUD in product model.
     """
@@ -292,9 +280,6 @@ class ProductView(APIView):
         description="""
             Displays the products of that particular id.
         """,
-        parameters=[
-            OpenApiParameter(name="id", required=True),
-        ],
         responses={
             status.HTTP_200_OK: inline_serializer(
                 "success_product_get_response",
@@ -310,7 +295,7 @@ class ProductView(APIView):
             status.HTTP_401_UNAUTHORIZED: ErrorResponse401Serializer,
         },
     )
-    def get(self, request, id=None):
+    def get(self, request, *args, **kwargs):
         """
         Handles GET requests to retrieve a product.
 
@@ -321,50 +306,12 @@ class ProductView(APIView):
         Returns:
             Response: JSON response containing the product data.
         """
-        id = request.query_params.get("id")
         qs = self.get_queryset()
-        query = get_or_not_found(qs, id=id)
+        query = get_or_not_found(qs, id=kwargs.get("id"))
         serializer = self.serializer_class(query)
         return Response(
             get_success(202, "Successfully fetched category data.", serializer.data),
             status=status.HTTP_202_ACCEPTED,
-        )
-
-    @extend_schema(
-        operation_id="Product-Items post API",
-        description="""
-        Creates a product.
-        """,
-        request=ProductSerializer,
-        responses={
-            status.HTTP_201_CREATED: inline_serializer(
-                "success_category_response",
-                fields={
-                    "code": serializers.IntegerField(default=200),
-                    "message": serializers.CharField(default="Product data saved"),
-                    "data": serializers.JSONField(default={}),
-                    "error": serializers.JSONField(default={}),
-                },
-            ),
-            status.HTTP_400_BAD_REQUEST: ValidationErrorResponseSerializer,
-        },
-    )
-    def post(self, request):
-        """
-        Handles POST requests to create a product.
-
-        Args:
-            request: The incoming HTTP request.
-
-        Returns:
-            Response: JSON response containing the saved product data.
-        """
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(
-            get_success(201, "Product data saved", serializer.data),
-            status=status.HTTP_201_CREATED,
         )
 
     @extend_schema(
@@ -373,9 +320,6 @@ class ProductView(APIView):
         Allows an user to update the Product.
         """,
         request=ProductSerializer,
-        parameters=[
-            OpenApiParameter(name="id", required=True),
-        ],
         responses={
             status.HTTP_200_OK: inline_serializer(
                 "success_update_response",
@@ -390,7 +334,7 @@ class ProductView(APIView):
             status.HTTP_404_NOT_FOUND: ErrorResponse404Serializer,
         },
     )
-    def patch(self, request, id=None):
+    def patch(self, request, *args, **kwargs):
         """
         Handles PATCH requests to update a product.
 
@@ -401,9 +345,8 @@ class ProductView(APIView):
         Returns:
             Response: JSON response containing the updated product data.
         """
-        id = request.query_params.get("id")
         qs = self.get_queryset()
-        instance = get_or_not_found(qs, id=id)
+        instance = get_or_not_found(qs, id=kwargs.get("id"))
         serializer = self.serializer_class(instance=instance, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -418,9 +361,6 @@ class ProductView(APIView):
         Allows an user delete the Product.
         """,
         request=ProductSerializer,
-        parameters=[
-            OpenApiParameter(name="id", required=True),
-        ],
         responses={
             status.HTTP_200_OK: inline_serializer(
                 "success_delete_response",
@@ -446,16 +386,15 @@ class ProductView(APIView):
         Returns:
             Response: JSON response indicating successful deletion.
         """
-        id = request.query_params.get("id")
         qs = self.get_queryset()
-        query = get_or_not_found(qs, id=id)
+        query = get_or_not_found(qs, id=kwargs.get("id"))
         query.delete()
         return Response(
             get_success(200, "Product data deleted"), status=status.HTTP_200_OK
         )
 
 
-class Product_all_view(APIView):
+class Product_get_post_view(APIView):
     """
     It is a view that is used to get all data from product model.
     """
@@ -508,6 +447,43 @@ class Product_all_view(APIView):
         return Response(
             get_success(202, "Successfully fetched all product data.", serializer.data),
             status=status.HTTP_202_ACCEPTED,
+        )
+
+    @extend_schema(
+        operation_id="Product-Items post API",
+        description="""
+        Creates a product.
+        """,
+        request=ProductSerializer,
+        responses={
+            status.HTTP_201_CREATED: inline_serializer(
+                "success_category_response",
+                fields={
+                    "code": serializers.IntegerField(default=200),
+                    "message": serializers.CharField(default="Product data saved"),
+                    "data": serializers.JSONField(default={}),
+                    "error": serializers.JSONField(default={}),
+                },
+            ),
+            status.HTTP_400_BAD_REQUEST: ValidationErrorResponseSerializer,
+        },
+    )
+    def post(self, request):
+        """
+        Handles POST requests to create a product.
+
+        Args:
+            request: The incoming HTTP request.
+
+        Returns:
+            Response: JSON response containing the saved product data.
+        """
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            get_success(201, "Product data saved", serializer.data),
+            status=status.HTTP_201_CREATED,
         )
 
 

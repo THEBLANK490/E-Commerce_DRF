@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from core.validators import category_name_validator
 from product.models import Category, Product, Review
 from user_authentication.serializers import UserAccount
 
@@ -17,7 +18,7 @@ class CategorySerializer(serializers.Serializer):
         update: Updates an existing category with the validated data.
     """
 
-    name = serializers.CharField(max_length=50)
+    name = serializers.CharField(max_length=50, validators=[category_name_validator])
 
     def validate(self, attrs: dict) -> dict:
         """

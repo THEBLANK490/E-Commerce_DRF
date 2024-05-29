@@ -121,10 +121,18 @@ class CartView(APIView):
             get_success(200, "Cart created successfully."), status=status.HTTP_200_OK
         )
 
+
+class CartDeleteView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Cart.objects.all()
+
     @extend_schema(
-        operation_id="Cart Create API",
+        operation_id="Cart Delete API",
         description="""
-        Allows user to construct a cart.
+        Allows user to delete a cart.
         """,
         responses={
             status.HTTP_201_CREATED: inline_serializer(
@@ -140,7 +148,7 @@ class CartView(APIView):
             status.HTTP_401_UNAUTHORIZED: ErrorResponse401Serializer,
         },
     )
-    def delete(self, request):
+    def delete(self, request, *args, **kwargs):
         """
         Delete method to delete a cart.
 
@@ -150,9 +158,8 @@ class CartView(APIView):
         Returns:
             Response: The response object.
         """
-        id = request.query_params.get("id")
-        qs = Cart.objects.filter(id=id)
-        instance = get_or_not_found(qs, id=id)
+        qs = self.get_queryset()
+        instance = get_or_not_found(qs, id=self.kwargs.get("id"))
         instance.delete()
         return Response(
             get_success(200, "Items deleted", ""), status=status.HTTP_200_OK
@@ -258,15 +265,27 @@ class CartItemView(APIView):
             get_success(200, "Cart item added successfully."), status=status.HTTP_200_OK
         )
 
+
+class CartItemsUpdateDeleteView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    serializer_class = CartItemSerializer
+
+    def get_queryset(self):
+        """
+        Retrieves the queryset for cart items.
+
+        Returns:
+            QuerySet: The cart items queryset.
+        """
+        return CartItems.objects.all()
+
     @extend_schema(
         operation_id="CartItems update API",
         description="""
         Allows an user to update the CartItems.
         """,
         request=CartItemSerializer,
-        parameters=[
-            OpenApiParameter(name="id", required=True),
-        ],
         responses={
             status.HTTP_200_OK: inline_serializer(
                 "success_update_response",
@@ -291,9 +310,8 @@ class CartItemView(APIView):
         Returns:
             Response: The response object.
         """
-        id = request.query_params.get("id")
         qs = self.get_queryset()
-        instance = get_or_not_found(qs, id=id)
+        instance = get_or_not_found(qs, id=self.kwargs.get("id"))
         serializer = self.serializer_class(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -308,9 +326,6 @@ class CartItemView(APIView):
         Allows an user delete the CartItems.
         """,
         request=CartItemSerializer,
-        parameters=[
-            OpenApiParameter(name="id", required=True),
-        ],
         responses={
             status.HTTP_200_OK: inline_serializer(
                 "success_delete_response",
@@ -336,9 +351,8 @@ class CartItemView(APIView):
         Returns:
             Response: The response object.
         """
-        id = request.query_params.get("id")
         qs = self.get_queryset()
-        instance = get_or_not_found(qs, id=id)
+        instance = get_or_not_found(qs, id=self.kwargs.get("id"))
         instance.delete()
         return Response(
             get_success(200, "Items deleted", ""), status=status.HTTP_200_OK

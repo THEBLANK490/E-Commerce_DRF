@@ -1,5 +1,5 @@
 from django.contrib.auth import authenticate
-from django.contrib.auth.hashers import check_password, make_password
+from django.contrib.auth.hashers import make_password
 from django.db import transaction
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator

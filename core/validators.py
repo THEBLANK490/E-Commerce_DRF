@@ -6,7 +6,7 @@ from product.models import Category
 from user_authentication.models import UserAccount
 
 
-def phone_number_validator(phone):
+def phone_number_validator(phone: str) -> Exception:
     """
     Validator function to check if the phone number is in valid format.
 
@@ -22,7 +22,7 @@ def phone_number_validator(phone):
         raise serializers.ValidationError({"phone": "Enter a valid phone number"})
 
 
-def phone_number_unique_validator(phone):
+def phone_number_unique_validator(phone: str) -> Exception:
     """
     Validator function to check if the phone number is unique.
 
@@ -37,7 +37,7 @@ def phone_number_unique_validator(phone):
         raise serializers.ValidationError({"phone": "Phone number must be unique"})
 
 
-def password_validator(data):
+def password_validator(data: str) -> Exception:
     """
     Validator function to check if the password length is greater than 5.
 
@@ -51,7 +51,7 @@ def password_validator(data):
         raise serializers.ValidationError({"password": "Password length less than 5"})
 
 
-def address_validator(data):
+def address_validator(data: str) -> Exception:
     """
     Validator function to check if the address length is greater than 5.
 
@@ -65,12 +65,12 @@ def address_validator(data):
         raise serializers.ValidationError({"address": "Address length less than 5"})
 
 
-def category_name_validator(name):
+def category_name_validator(name: str) -> Exception:
     """
-    Validator function to check if the category name already exists.
+    Validates if a category name already exists.
 
     Args:
-        name (str): The name of the category to be validated.
+        name (str): The category name to validate.
 
     Raises:
         serializers.ValidationError: If the category name already exists.
@@ -79,7 +79,7 @@ def category_name_validator(name):
         raise serializers.ValidationError({"error": "Category already exists"})
 
 
-def email_is_user_instance_validator(email):
+def email_is_user_instance_validator(email: str) -> Exception:
     """
     Validator function to check if the email belongs to a registered user.
 

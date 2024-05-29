@@ -1,23 +1,23 @@
 from django.urls import path
 
 from product.views import (
-    Category_all_view,
-    CategoryFilter,
-    CategoryView,
-    Product_all_view,
+    Category_get_post_view,
+    CategoryIndividualView,
+    Product_get_post_view,
+    ProductIndividualView,
     ProductFilter,
     ProductListPaginationView,
     ProductSearchView,
-    ProductView,
     ReviewView,
+    CategoryFilter,
 )
 
 app_name = "product"
 urlpatterns = [
-    path("category-crud-view/", CategoryView.as_view()),
-    path("category-all-view", Category_all_view.as_view()),
-    path("product-view/", ProductView.as_view()),
-    path("product-all-view", Product_all_view.as_view()),
+    path("category-individual-view/<int:id>", CategoryIndividualView.as_view()),
+    path("category-view/", Category_get_post_view.as_view()),
+    path("product-individual-view/<int:id>", ProductIndividualView.as_view()),
+    path("product-view", Product_get_post_view.as_view()),
     path("product-filter/", CategoryFilter.as_view()),
     path("product-review/", ReviewView.as_view()),
     path("product-list-filter/", ProductFilter.as_view()),
