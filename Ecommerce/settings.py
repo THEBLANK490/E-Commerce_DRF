@@ -28,8 +28,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 TIME_ZONE = "Asia/Kathmandu"
 
-# app = Celery('proj')
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
@@ -143,13 +141,13 @@ REST_FRAMEWORK = {
     # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     # 'PAGE_SIZE': 100
     "EXCEPTION_HANDLER": "drf_standardized_errors.handler.exception_handler",
-    "DEFAULT_PAGINATION_CLASS": "product.pagination.CustomPagination",
+    "DEFAULT_PAGINATION_CLASS": "core.pagination.CustomPagination",
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Your Project API",
-    "DESCRIPTION": "Your project description",
+    "TITLE": "ECommerce API",
+    "DESCRIPTION": "This is an e-commerce project",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "COMPONENT_SPLIT_REQUEST": True,

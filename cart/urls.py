@@ -10,9 +10,9 @@ from cart.views import (
 
 app_name = "cart"
 urlpatterns = [
-    path("cart-view/", CartView.as_view()),
-    path("cart-delete-view/<int:id>/", CartDeleteView.as_view()),
-    path("cart-items/", CartItemView.as_view()),
-    path("cart-items/<int:id>/", CartItemsUpdateDeleteView.as_view()),
-    path("checkout-view/", Checkout.as_view()),
+    path("cart-get-post/", CartView.as_view()),
+    path("cart-delete/<int:id>/", CartDeleteView.as_view()),
+    path("cart-items-get-post/", CartItemView.as_view()),
+    path("cart-items-patch-delete/<int:id>/", CartItemsUpdateDeleteView.as_view()),
+    path("checkout/", Checkout.as_view()),
 ]

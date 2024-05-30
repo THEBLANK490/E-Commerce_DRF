@@ -40,7 +40,8 @@ class CartItemSerializer(serializers.Serializer):
         update: Updates an existing CartItems instance with the validated data.
     """
 
-    product = serializers.CharField(source="cart_items_product.name")
+    # product = serializers.CharField(source="cart_items_product.name")
+    product = serializers.CharField(source="product.name")
     quantity = serializers.IntegerField(default=1)
 
     class Meta:
@@ -77,7 +78,7 @@ class CartItemSerializer(serializers.Serializer):
         """
         request = self.context["request"]
         product = Product.objects.filter(
-            name=validated_data.get("cart_items_product")["name"]
+            name=validated_data.get("product")["name"]
         ).first()
         cart = Cart.objects.filter(user=request.user).first()
         fields = {
@@ -103,7 +104,7 @@ class CartItemSerializer(serializers.Serializer):
         Returns:
             CartItems: The updated CartItems instance.
         """
-        product_name = validated_data.get("cart_items_product")["name"]
+        product_name = validated_data.get("product")["name"]
         product = Product.objects.filter(name=product_name).first()
         instance.product = product
         instance.quantity = validated_data.get("quantity")

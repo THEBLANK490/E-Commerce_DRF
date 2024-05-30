@@ -159,7 +159,7 @@ class CartDeleteView(APIView):
             Response: The response object.
         """
         qs = self.get_queryset()
-        instance = get_or_not_found(qs, id=self.kwargs.get("id"))
+        instance = get_or_not_found(qs, id=self.kwargs.get("id"), user=request.user)
         instance.delete()
         return Response(
             get_success(200, "Items deleted", ""), status=status.HTTP_200_OK
@@ -180,14 +180,14 @@ class CartItemView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = CartItemSerializer
 
-    def get_queryset(self):
-        """
-        Retrieves the queryset for cart items.
+    # def get_queryset(self):
+    #     """
+    #     Retrieves the queryset for cart items.
 
-        Returns:
-            QuerySet: The cart items queryset.
-        """
-        return CartItems.objects.all()
+    #     Returns:
+    #         QuerySet: The cart items queryset.
+    #     """
+    #     return CartItems.objects.all()
 
     @extend_schema(
         operation_id="Cart get API",
@@ -262,7 +262,8 @@ class CartItemView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(
-            get_success(200, "Cart item added successfully."), status=status.HTTP_200_OK
+            get_success(200, "Cart item added successfully.", serializer.data),
+            status=status.HTTP_200_OK,
         )
 
 
@@ -311,7 +312,7 @@ class CartItemsUpdateDeleteView(APIView):
             Response: The response object.
         """
         qs = self.get_queryset()
-        instance = get_or_not_found(qs, id=self.kwargs.get("id"))
+        instance = get_or_not_found(qs, id=self.kwargs.get("id"), user=request.user)
         serializer = self.serializer_class(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -352,7 +353,7 @@ class CartItemsUpdateDeleteView(APIView):
             Response: The response object.
         """
         qs = self.get_queryset()
-        instance = get_or_not_found(qs, id=self.kwargs.get("id"))
+        instance = get_or_not_found(qs, id=self.kwargs.get("id"), user=request.user)
         instance.delete()
         return Response(
             get_success(200, "Items deleted", ""), status=status.HTTP_200_OK
@@ -374,7 +375,7 @@ class Checkout(APIView):
     serializer_class = CheckoutSerializer
 
     @extend_schema(
-        operation_id="Cart get API",
+        operation_id="Cart checkout API",
         description="""
             Displays checkout items of the logged in user.
         """,
