@@ -166,7 +166,7 @@ class Category_get_post_view(APIView):
     """
 
     authentication_classes = [JWTAuthentication]
-    permission_classes = [AllowOnlyAuthorized]
+    # permission_classes = [AllowOnlyAuthorized]
     serializer_class = CategorySerializer
 
     def get_queryset(self) -> Category:
@@ -394,7 +394,7 @@ class ProductIndividualView(APIView):
         )
 
 
-class Product_get_post_view(APIView):
+class Product_get_view(APIView):
     """
     It is a view that is used to get all data from product model.
     """
@@ -448,6 +448,25 @@ class Product_get_post_view(APIView):
             get_success(202, "Successfully fetched all product data.", serializer.data),
             status=status.HTTP_202_ACCEPTED,
         )
+
+
+class Product_post_view(APIView):
+    """
+    It is a view that is used to get all data from product model.
+    """
+
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [AllowOnlyAuthorized]
+    serializer_class = ProductSerializer
+
+    def get_queryset(self) -> Product:
+        """
+        Retrieve all products.
+
+        Returns:
+            QuerySet: Queryset of all Product objects.
+        """
+        return Product.objects.all()
 
     @extend_schema(
         operation_id="Product-Items post API",

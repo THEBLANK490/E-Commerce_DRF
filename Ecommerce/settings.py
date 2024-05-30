@@ -10,12 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
-import os
-from datetime import timedelta
+import os, datetime
 from pathlib import Path
 
 from decouple import config
-from django.conf import settings
 from dotenv import load_dotenv
 
 # from celery import Celery
@@ -68,6 +66,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "Ecommerce.middleware.DemoMiddleware",
 ]
 
 ROOT_URLCONF = "Ecommerce.urls"
@@ -216,3 +215,34 @@ EMAIL_USE_TLS = config("EMAIL_USE_TLS")
 EMAIL_PORT = config("EMAIL_PORT")
 PASSWORD_RESET_TIMEOUT = 1444
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+log_dir = "logs"
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "file": {
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "filename": f"{log_dir}/logger_{datetime.datetime.now().date()}.log",
+            "formatter": "verbose",
+            "when": "midnight",
+            "backupCount": 5,
+        },
+    },
+    "loggers": {
+        "take_log": {
+            "handlers": ["file"],
+            "propagate": True,
+            "level": "INFO",
+        },
+    },
+}

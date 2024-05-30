@@ -14,6 +14,11 @@ from core.response import get_success
 from core.utils import get_or_not_found
 from product.models import Category, Product
 from user_authentication.models import UserAccount
+from drf_standardized_errors.openapi_serializers import (
+    ValidationErrorResponseSerializer,
+)
+from user_authentication.serializers import ProfileSerializer
+from core.utils import get_or_not_found
 
 
 # Create your views here.
@@ -28,7 +33,7 @@ class AccountRole(APIView):
     """
 
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAdmin]
+    # permission_classes = [IsAdmin]
     serializer_class = AdminAccountRoleSerializer
 
     def get_queryset(self):
@@ -38,7 +43,7 @@ class AccountRole(APIView):
         Returns:
             QuerySet: The queryset of user accounts.
         """
-        return UserAccount.objects.all().exclude(is_staff=True)
+        return UserAccount.objects.all().exclude(is_staff=True).first()
 
     @extend_schema(
         operation_id="Account Role update API",
@@ -187,4 +192,106 @@ class UserListAdmin(APIView):
         serializer = UserDataSerializer(qs, many=True)
         return Response(
             get_success(200, "User data", serializer.data), status=status.HTTP_200_OK
+        )
+
+
+class AdminViewProfile(APIView):
+    """
+    API view for viewing and updating user profile for admin.
+    """
+
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAdmin]
+    serializer_class = ProfileSerializer
+
+    def get_queryset(self):
+        """
+        Retrieve specific UserAccount.
+
+        Returns:
+            QuerySet: Queryset of specific UserAccount objects.
+        """
+        return UserAccount.objects.all()
+
+    @extend_schema(
+        operation_id="View Profile Api",
+        description="""
+                To view the user's profile by admin
+            """,
+        request=ProfileSerializer,
+        responses={
+            status.HTTP_200_OK: inline_serializer(
+                "success_view_profile_response",
+                fields={
+                    "code": serializers.IntegerField(default=200),
+                    "message": serializers.CharField(default="User Data"),
+                    "data": serializers.JSONField(default={}),
+                    "error": serializers.JSONField(default={}),
+                },
+            ),
+            status.HTTP_400_BAD_REQUEST: ValidationErrorResponseSerializer,
+        },
+    )
+    def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests to retrieve user profile for admin.
+
+        Args:
+            request: The incoming HTTP request.
+            *args: Additional arguments.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            Response: JSON response containing user data.
+        """
+        qs = self.get_queryset()
+        query = get_or_not_found(qs, id=kwargs.get("id"))
+        serializer = self.serializer_class(query)
+        return Response(
+            get_success(200, "User Data", serializer.data), status=status.HTTP_200_OK
+        )
+
+    @extend_schema(
+        operation_id="View Profile Api",
+        description="""
+                To view the user's profile
+            """,
+        request=ProfileSerializer,
+        responses={
+            status.HTTP_200_OK: inline_serializer(
+                "success_view_profile_response",
+                fields={
+                    "code": serializers.IntegerField(default=200),
+                    "message": serializers.CharField(
+                        default="User updated successfully"
+                    ),
+                    "data": serializers.JSONField(default={}),
+                    "error": serializers.JSONField(default={}),
+                },
+            ),
+            status.HTTP_400_BAD_REQUEST: ValidationErrorResponseSerializer,
+        },
+    )
+    def patch(self, request, *args, **kwargs):
+        """
+        Handles PATCH requests to update user profile by admin.
+
+        Args:
+            request: The incoming HTTP request.
+            *args: Additional arguments.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            Response: JSON response confirming the profile update.
+        """
+        qs = self.get_queryset()
+        query = get_or_not_found(qs, id=kwargs.get("id"))
+        serializer = self.serializer_class(
+            instance=query, data=request.data, partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            get_success(202, "User updated successfully", serializer.data),
+            status=status.HTTP_202_ACCEPTED,
         )

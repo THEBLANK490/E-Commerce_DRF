@@ -1,4 +1,4 @@
-from drf_spectacular.utils import OpenApiParameter, extend_schema, inline_serializer
+from drf_spectacular.utils import extend_schema, inline_serializer
 from drf_standardized_errors.openapi_serializers import (
     ValidationErrorResponseSerializer,
 )
@@ -183,14 +183,17 @@ class ViewProfile(APIView):
     permission_classes = [Is_User, IsAuthenticated]
     serializer_class = ProfileSerializer
 
-    def get_queryset(self):
+    def get_queryset(self, request):
         """
         Retrieve all UserAccount.
 
         Returns:
             QuerySet: Queryset of all UserAccount objects.
         """
-        return UserAccount.objects.all()
+        user_email = request.user.email
+        return (
+            UserAccount.objects.filter(email=user_email).exclude(role="ADMIN").first()
+        )
 
     @extend_schema(
         operation_id="View Profile Api",
@@ -223,9 +226,8 @@ class ViewProfile(APIView):
         Returns:
             Response: JSON response containing user data.
         """
-        qs = self.get_queryset()
-        query = get_or_not_found(qs, id=kwargs.get("id"))
-        serializer = self.serializer_class(query)
+        qs = self.get_queryset(request=request)
+        serializer = self.serializer_class(qs)
         return Response(
             get_success(200, "User Data", serializer.data), status=status.HTTP_200_OK
         )
@@ -263,11 +265,8 @@ class ViewProfile(APIView):
         Returns:
             Response: JSON response confirming the profile update.
         """
-        qs = self.get_queryset()
-        query = get_or_not_found(qs, id=kwargs.get("id"))
-        serializer = self.serializer_class(
-            instance=query, data=request.data, partial=True
-        )
+        qs = self.get_queryset(request=request)
+        serializer = self.serializer_class(instance=qs, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(
@@ -328,7 +327,7 @@ class Password_Changer(APIView):
             Response: JSON response confirming the password change.
         """
         qs = self.get_queryset()
-        query = get_or_not_found(qs, id=kwargs.get("id"))
+        query = get_or_not_found(qs, id=request.user.id)
         serializer = self.serializer_class(
             instance=query, data=request.data, partial=True
         )
