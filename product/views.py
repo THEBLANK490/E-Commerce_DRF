@@ -515,6 +515,26 @@ class ReviewView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ReviewSerializer
 
+    @extend_schema(
+        operation_id="Review get all data API",
+        description="""
+            Displays all the review data.
+        """,
+        responses={
+            status.HTTP_200_OK: inline_serializer(
+                "success_review_get_response",
+                fields={
+                    "code": serializers.IntegerField(default=200),
+                    "message": serializers.CharField(
+                        default="Successfully fetched review data."
+                    ),
+                    "data": serializers.JSONField(default={}),
+                    "error": serializers.JSONField(default={}),
+                },
+            ),
+            status.HTTP_401_UNAUTHORIZED: ErrorResponse401Serializer,
+        },
+    )
     def get(self, request):
         """
         Handles GET requests to retrieve all reviews.
@@ -531,6 +551,25 @@ class ReviewView(APIView):
             get_success(200, "Review Data", serializer.data), status=status.HTTP_200_OK
         )
 
+    @extend_schema(
+        operation_id="Review post API",
+        description="""
+        Creates a review.
+        """,
+        request=ReviewSerializer,
+        responses={
+            status.HTTP_201_CREATED: inline_serializer(
+                "success_review_response",
+                fields={
+                    "code": serializers.IntegerField(default=200),
+                    "message": serializers.CharField(default="Review data saved"),
+                    "data": serializers.JSONField(default={}),
+                    "error": serializers.JSONField(default={}),
+                },
+            ),
+            status.HTTP_400_BAD_REQUEST: ValidationErrorResponseSerializer,
+        },
+    )
     def post(self, request):
         """
         Handles POST requests to create a new review.
